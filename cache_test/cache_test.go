@@ -45,7 +45,7 @@ func init() {
 	keyGen = gen
 }
 
-func BenchmarkgcacheLRU(b *testing.B) {
+func Benchmark_gcacheLRU(b *testing.B) {
 	gcOnce.Do(func() {
 		gc = gcache.New(LRU_SIZE).
 			LRU().
@@ -69,7 +69,7 @@ func BenchmarkgcacheLRU(b *testing.B) {
 	})
 }
 
-func BenchmarkgroupcacheStringGroup(b *testing.B) {
+func Benchmark_groupcacheStringGroup(b *testing.B) {
 	groupOnce.Do(func() {
 		sg = groupcache.NewGroup("string-group", LRU_SIZE, groupcache.GetterFunc(func(_ groupcache.Context, key string, dest groupcache.Sink) error {
 			return dest.SetString(vValue(key).(string))
@@ -92,7 +92,7 @@ func BenchmarkgroupcacheStringGroup(b *testing.B) {
 	})
 }
 
-func Benchmarkcache2goExpire(b *testing.B) {
+func Benchmark_cache2goExpire(b *testing.B) {
 	c2goOnce.Do(func() {
 		c2go = cache2go.Cache("cache2go-bench")
 		c2go.SetDataLoader(func(key interface{}, args ...interface{}) *cache2go.CacheItem {

@@ -2,22 +2,22 @@ path=$(shell pwd)
 export BENCHTIME=3s
 export KEY_METHOD=random
 
+define bench_cmd
+    mkdir -p result/$@
+	go test -o result/$@/$@.test -benchtime=$(BENCHTIME) -bench="$@" -outputdir=$(path)/result/$@ -benchmem -cpuprofile=cpu.prof -memprofile=memory.prof -v ./cache_test/
+	go-torch $(path)/result/$@/$@.test $(path)/result/$@/cpu.prof -f $(path)/result/$@/torch.svg
+endef
+
 gcache:
-	mkdir -p result/$@
-	go test -benchtime=$(BENCHTIME) -bench="$@" -outputdir=$(path)/result/$@ -benchmem -cpuprofile=cpu.prof -memprofile=memory.prof -v ./cache_test/
-	mv cache_test.test $(path)/result/$@
+	$(call bench_cmd)
 
 groupcache:
-	mkdir -p result/$@
-	go test -benchtime=$(BENCHTIME) -bench="$@" -outputdir=$(path)/result/$@ -benchmem -cpuprofile=cpu.prof -memprofile=memory.prof -v ./cache_test/
-	mv cache_test.test $(path)/result/$@
+	$(call bench_cmd)
 
 cache2go:
-	mkdir -p result/$@
-	go test -benchtime=$(BENCHTIME) -bench="$@" -outputdir=$(path)/result/$@ -benchmem -cpuprofile=cpu.prof -memprofile=memory.prof -v ./cache_test/
-	mv cache_test.test $(path)/result/$@
+	$(call bench_cmd)
 
 all: gcache groupcache cache2go
 
 clean:
-	rm -rf result cache_test.test
+	rm -rf result
