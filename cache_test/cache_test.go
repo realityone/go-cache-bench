@@ -69,7 +69,34 @@ func Benchmark_gcacheLRU(b *testing.B) {
 	})
 }
 
-func Benchmark_groupcacheStringGroup(b *testing.B) {
+func Benchmark_gcacheLRUExpire(b *testing.B) {
+	gcOnce.Do(func() {
+		gc = gcache.New(LRU_SIZE).
+			LRU().
+			LoaderFunc(loader).
+			Build()
+	})
+
+	b.ResetTimer()
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			key := keyGen()
+			value := vValue(key)
+			if err := gc.SetWithExpire(key, value, 15*time.Millisecond); err != nil {
+				panic(err)
+			}
+			value1, err := gc.Get(key)
+			if err != nil {
+				panic(err)
+			}
+			if value.(string) != value1.(string) {
+				panic("value is not expected")
+			}
+		}
+	})
+}
+
+func Benchmark_groupcacheStringGroupLRU(b *testing.B) {
 	groupOnce.Do(func() {
 		sg = groupcache.NewGroup("string-group", LRU_SIZE, groupcache.GetterFunc(func(_ groupcache.Context, key string, dest groupcache.Sink) error {
 			return dest.SetString(vValue(key).(string))
